@@ -83,7 +83,11 @@ class RoomDepthDataset(MonoDataset):
 
         return color
 
+    # This function basically checks whether depth data is available, and enables supervised learning
     def check_depth(self):
+        # Override logic, return true, depth data is available as described in get_depth()
+        return True;
+        # Some logic to check whether velodyne points are available
         line = self.filenames[0].split()
         scene_name = line[0]
         frame_index = int(line[1])
@@ -109,11 +113,12 @@ class RoomDepthDataset(MonoDataset):
         return image_path
 
     def get_depth(self, folder, frame_index, side, do_flip):
-        f_str = "{:010d}.png".format(frame_index)
+        print("ED get_depth was called")
+        f_str = "{}.png".format(frame_index)
         depth_path = os.path.join(
             self.data_path,
             folder,
-            "proj_depth/groundtruth/image_0{}".format(self.side_map[side]),
+            "depth/",
             f_str)
 
         depth_gt = pil.open(depth_path)

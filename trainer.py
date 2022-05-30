@@ -203,7 +203,10 @@ class Trainer:
         for self.epoch in range(self.opt.num_epochs):
             self.run_epoch()
             if (self.epoch + 1) % self.opt.save_frequency == 0:
+                print("Saving model")
                 self.save_model()
+                print("Saved model")
+        print("training done")
 
     def run_epoch(self):
         """Run a single epoch of training and validation
@@ -212,14 +215,11 @@ class Trainer:
 
         print("Training")
         self.set_train()
-        # print("log 0")
 
         for batch_idx, inputs in enumerate(self.train_loader):
-
             before_op_time = time.time()
 
             outputs, losses = self.process_batch(inputs)
-            # print("log 1")
 
             self.model_optimizer.zero_grad()
             losses["loss"].backward()
@@ -235,7 +235,10 @@ class Trainer:
                 self.log_time(batch_idx, duration, losses["loss"].cpu().data)
 
                 if "depth_gt" in inputs:
+                    print("ED depth_gt available")
                     self.compute_depth_losses(inputs, outputs, losses)
+                else:
+                    print("ED depth_gt not available")
 
                 self.log("train", inputs, outputs, losses)
                 self.val()
@@ -268,12 +271,8 @@ class Trainer:
         if self.opt.predictive_mask:
             outputs["predictive_mask"] = self.models["predictive_mask"](features)
 
-        # print("log 2")
-
         if self.use_pose_net:
             outputs.update(self.predict_poses(inputs, features))
-
-        # print("log 3")
 
         self.generate_images_pred(inputs, outputs)
         losses = self.compute_losses(inputs, outputs)
